@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Geek Romance | 专属双人数字宇宙</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Serif+SC:wght@500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                        serif: ['Noto Serif SC', 'serif']
+                    },
+                    colors: {
+                        rose: { 400: '#fb7185', 500: '#f43f5e', 600: '#e11d48' },
+                        geek: { dark: '#0b0f19', card: 'rgba(17, 24, 39, 0.75)', lightCard: 'rgba(255, 255, 255, 0.85)' }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(244, 63, 94, 0.3); border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(244, 63, 94, 0.6); }
+
+        .glass-card { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+        .polaroid { transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .polaroid:hover { transform: translateY(-8px) rotate(0deg) scale(1.02) !important; z-index: 20; }
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        html { scroll-behavior: smooth; }
+    </style>
+</head>
+<body class="bg-rose-50/70 text-slate-800 dark:bg-[#090d16] dark:text-slate-100 min-h-screen relative overflow-x-hidden transition-colors duration-500 selection:bg-rose-500 selection:text-white">
+
+    <canvas id="bg-canvas" class="fixed inset-0 pointer-events-none z-0 opacity-70"></canvas>
+
+    <div class="fixed top-[-10%] left-[-10%] w-96 h-96 bg-rose-500/20 dark:bg-rose-500/15 rounded-full blur-3xl pointer-events-none z-0"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-[28rem] h-[28rem] bg-purple-500/20 dark:bg-indigo-500/15 rounded-full blur-3xl pointer-events-none z-0"></div>
+
+    <header class="sticky top-0 z-40 glass-card bg-white/75 dark:bg-slate-900/75 border-b border-rose-200/60 dark:border-slate-800/80 transition-colors">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <a href="#" class="flex items-center gap-2.5 group">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-rose-500/25 group-hover:scale-105 transition-transform">
+                    <i class="fa-solid fa-code-branch text-sm"></i>
+                </div>
+                <div>
+                    <span class="font-bold tracking-tight text-lg bg-clip-text text-transparent bg-gradient-to-r from-rose-500 via-pink-500 to-purple-500">Love.OS</span>
+                    <span class="hidden sm:inline-block ml-1.5 text-[11px] font-mono px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-500 dark:text-rose-400 border border-rose-500/20">v1.3.14</span>
+                </div>
+            </a>
+
+            <nav class="hidden md:flex items-center gap-1 text-sm font-medium">
+                <a href="#hero" class="px-3.5 py-2 rounded-lg hover:bg-rose-500/10 hover:text-rose-500 transition-colors">时光坐标</a>
+                <a href="#gallery" class="px-3.5 py-2 rounded-lg hover:bg-rose-500/10 hover:text-rose-500 transition-colors">她的照片墙</a>
+                <a href="#games" class="px-3.5 py-2 rounded-lg hover:bg-rose-500/10 hover:text-rose-500 transition-colors">双人实验室</a>
+                <a href="#vault" class="px-3.5 py-2 rounded-lg hover:bg-rose-500/10 hover:text-rose-500 transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-shield-heart text-rose-500"></i> 秘密空间
+                </a>
+            </nav>
+
+            <div class="flex items-center gap-2">
+                <button onclick="openConfigModal()" class="px-3 py-1.5 rounded-xl text-xs font-mono bg-slate-200/70 dark:bg-slate-800 hover:bg-rose-500/20 hover:text-rose-500 transition-colors flex items-center gap-1.5" title="自定义姓名与纪念日">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span class="hidden sm:inline">参数配置</span>
+                </button>
+                <button onclick="toggleTheme()" class="w-9 h-9 rounded-xl bg-slate-200/70 dark:bg-slate-800 hover:bg-rose-500/20 hover:text-rose-500 flex items-center justify-center transition-colors" title="切换星空/晨曦主题">
+                    <i id="theme-icon" class="fa-solid fa-moon text-sm"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10 space-y-20">
+        <!-- HERO -->
+        <section id="hero" class="space-y-8">
+            <div class="glass-card bg-white/80 dark:bg-slate-900/80 border border-rose-200/80 dark:border-slate-800 rounded-3xl p-6 sm:p-10 shadow-xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-rose-500/10 via-purple-500/10 to-transparent rounded-bl-full pointer-events-none"></div>
+                
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-200/70 dark:border-slate-800/80">
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span>
+                        <span class="w-3 h-3 rounded-full bg-amber-400 inline-block"></span>
+                        <span class="w-3 h-3 rounded-full bg-emerald-400 inline-block"></span>
+                        <span class="ml-2 text-xs font-mono text-slate-400">~/universe/our-story/init.sh</span>
+                    </div>
+                    <span class="text-xs font-mono text-emerald-500 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                        SYSTEM ONLINE
+                    </span>
+                </div>
+
+                <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+                    <div class="space-y-3 max-w-2xl">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-500 dark:text-rose-400 text-xs font-mono">
+                            <i class="fa-solid fa-terminal"></i>
+                            <span>while(alive) { love(her); explore(AGI); }</span>
+                        </div>
+                        <h1 class="text-3xl sm:text-5xl font-bold tracking-tight font-serif leading-tight">
+                            欢迎来到 <span id="display-boy" class="text-rose-500">我</span> 与 <span id="display-girl" class="bg-clip-text text-transparent bg-gradient-to-r from-rose-500 to-purple-500">她</span> 的专属数字宇宙
+                        </h1>
+                        <p id="display-motto" class="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed">
+                            “用代码构建浪漫，把每一天的日常、每一次咖啡厅的奇点讨论，都编译进只属于我们两个人的永恒内存里。”
+                        </p>
+                    </div>
+
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="openConfigModal()" class="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-rose-500 to-purple-600 hover:from-rose-600 hover:to-purple-700 text-white font-medium text-sm shadow-lg shadow-rose-500/25 flex items-center gap-2 transition-all hover:scale-105">
+                            <i class="fa-regular fa-calendar-check"></i> 设置纪念日与生日
+                        </button>
+                        <a href="#vault" class="px-4 py-2.5 rounded-2xl bg-slate-200/80 dark:bg-slate-800/90 hover:bg-rose-500/15 hover:text-rose-500 text-sm font-medium flex items-center gap-2 transition-all">
+                            <i class="fa-solid fa-key"></i> 解锁秘密空间
+                        </a>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                    <!-- Timer 1 -->
+                    <div class="p-6 rounded-2xl bg-rose-50/70 dark:bg-slate-950/60 border border-rose-200/70 dark:border-slate-800/90 relative group">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-mono uppercase tracking-wider text-rose-500 flex items-center gap-1.5 font-semibold">
+                                <i class="fa-solid fa-heart-pulse animate-pulse"></i> 我们已经相识 / 相爱
+                            </span>
+                            <span id="start-date-label" class="text-xs font-mono text-slate-400">Since 2024-05-20</span>
+                        </div>
+                        <div class="grid grid-cols-4 gap-2 sm:gap-3 text-center my-2">
+                            <div class="bg-white dark:bg-slate-900 p-3 rounded-xl border border-rose-100 dark:border-slate-800 shadow-sm">
+                                <div id="t-days" class="text-2xl sm:text-3xl font-bold font-mono text-rose-500">000</div>
+                                <div class="text-[11px] text-slate-400 mt-1">天 (Days)</div>
+                            </div>
+                            <div class="bg-white dark:bg-slate-900 p-3 rounded-xl border border-rose-100 dark:border-slate-800 shadow-sm">
+                                <div id="t-hours" class="text-2xl sm:text-3xl font-bold font-mono">00</div>
+                                <div class="text-[11px] text-slate-400 mt-1">时 (Hrs)</div>
+                            </div>
+                            <div class="bg-white dark:bg-slate-900 p-3 rounded-xl border border-rose-100 dark:border-slate-800 shadow-sm">
+                                <div id="t-mins" class="text-2xl sm:text-3xl font-bold font-mono">00</div>
+                                <div class="text-[11px] text-slate-400 mt-1">分 (Min)</div>
+                            </div>
+                            <div class="bg-white dark:bg-slate-900 p-3 rounded-xl border border-rose-100 dark:border-slate-800 shadow-sm">
+                                <div id="t-secs" class="text-2xl sm:text-3xl font-bold font-mono text-purple-500">00</div>
+                                <div class="text-[11px] text-slate-400 mt-1">秒 (Sec)</div>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
+                            <span>每一秒的算力，都在为你跳动</span>
+                            <span id="total-hours-badge" class="font-mono text-[11px] text-rose-500">累计 0 小时</span>
+                        </div>
+                    </div>
+
+                    <!-- Timer 2 -->
+                    <div class="p-6 rounded-2xl bg-purple-50/70 dark:bg-slate-950/60 border border-purple-200/70 dark:border-slate-800/90 relative group">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-mono uppercase tracking-wider text-purple-500 flex items-center gap-1.5 font-semibold">
+                                <i class="fa-solid fa-cake-candles"></i> 距离她的下一次生日还有
+                            </span>
+                            <span id="bday-date-label" class="text-xs font-mono text-slate-400">Target: 10-24</span>
+                        </div>
+                        <div class="grid grid-cols-4 gap-2 sm:gap-3 text-center my-2">
+                            <div class="bg-white dark:bg-slate-900 p-3 rounded-xl border border-purple-100 dark:border-slate-800 shadow-sm">
+                                <div id="b-days" class="text-2xl sm:text-3xl font-bold font-mono text-purple-500">000</div>
+                                <div class="text-[11px] text-slate-400 mt-1">天 (Days)</div>
+                            </div>
+                            <div class="bg-white dark:bg-slate-900 p-3 rounded-xl border border-purple-100 dark:border-slate-800 shadow-sm">
+                                <div id="b-hours" class="text-2xl sm:text-3xl font-bold font-mono">00</div>
+                                <div class="text-[11px] text-slate-400 mt-1">时 (Hrs)</div>
+                            </div>
+                            <div class="bg-white dark:bg-slate-900 p-3 rounded-xl border border-purple-100 dark:border-slate-800 shadow-sm">
+                                <div id="b-mins" class="text-2xl sm:text-3xl font-bold font-mono">00</div>
+                                <div class="text-[11px] text-slate-400 mt-1">分 (Min)</div>
+                            </div>
+                            <div class="bg-white dark:bg-slate-900 p-3 rounded-xl border border-purple-100 dark:border-slate-800 shadow-sm">
+                                <div id="b-secs" class="text-2xl sm:text-3xl font-bold font-mono text-rose-500">00</div>
+                                <div class="text-[11px] text-slate-400 mt-1">秒 (Sec)</div>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
+                            <span id="bday-status-text">正在筹备新一岁的惊喜协议...</span>
+                            <button onclick="triggerConfettiHearts()" class="text-[11px] font-mono text-purple-500 hover:underline flex items-center gap-1">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> 发射爱心烟花
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- GALLERY -->
+        <section id="gallery" class="space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                <div>
+                    <div class="text-xs font-mono text-rose-500 uppercase tracking-wider mb-1">01 / MEMORY SNAPSHOTS</div>
+                    <h2 class="text-2xl sm:text-3xl font-bold font-serif flex items-center gap-2.5">
+                        <span>她的照片墙与时光帧</span>
+                        <span id="photo-count-badge" class="text-xs font-mono px-2.5 py-1 rounded-full bg-rose-500/10 text-rose-500">6 张记忆</span>
+                    </h2>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2">
+                    <div id="gallery-filters" class="flex flex-wrap gap-1.5 bg-white/80 dark:bg-slate-900/80 p-1.5 rounded-2xl border border-slate-200/70 dark:border-slate-800">
+                        <button onclick="filterGallery('全部')" data-filter="全部" class="filter-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-rose-500 text-white transition-all">全部</button>
+                        <button onclick="filterGallery('日常')" data-filter="日常" class="filter-btn px-3 py-1.5 rounded-xl text-xs font-medium hover:bg-rose-500/10 transition-all">日常</button>
+                        <button onclick="filterGallery('旅行')" data-filter="旅行" class="filter-btn px-3 py-1.5 rounded-xl text-xs font-medium hover:bg-rose-500/10 transition-all">旅行</button>
+                        <button onclick="filterGallery('咖啡厅日常')" data-filter="咖啡厅日常" class="filter-btn px-3 py-1.5 rounded-xl text-xs font-medium hover:bg-rose-500/10 transition-all">☕ 咖啡厅日常</button>
+                    </div>
+                    <button onclick="openPhotoModal()" class="px-4 py-2.5 rounded-2xl bg-rose-500 hover:bg-rose-600 text-white text-xs font-medium shadow-md shadow-rose-500/20 flex items-center gap-1.5 transition-all">
+                        <i class="fa-solid fa-camera-retro"></i> 添加新照片
+                    </button>
+                </div>
+            </div>
+            <div id="gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-2"></div>
+        </section>
+
+        <!-- GAMES -->
+        <section id="games" class="space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                <div>
+                    <div class="text-xs font-mono text-purple-500 uppercase tracking-wider mb-1">02 / INTERACTIVE PLAYGROUND</div>
+                    <h2 class="text-2xl sm:text-3xl font-bold font-serif">双人互动小游戏实验室</h2>
+                </div>
+                <div class="inline-flex p-1.5 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/70 dark:border-slate-800 self-start">
+                    <button id="tab-quiz-btn" onclick="switchGameTab('quiz')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-medium bg-gradient-to-r from-rose-500 to-purple-600 text-white shadow transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-brain"></i> 默契大考验 (Quiz)
+                    </button>
+                    <button id="tab-memory-btn" onclick="switchGameTab('memory')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-rose-500 transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-clone"></i> 回忆翻翻乐 (Match)
+                    </button>
+                </div>
+            </div>
+
+            <div id="game-quiz-panel" class="glass-card bg-white/80 dark:bg-slate-900/80 border border-rose-200/70 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl">
+                <div class="flex flex-wrap items-center justify-between gap-4 pb-5 mb-6 border-b border-slate-200/70 dark:border-slate-800">
+                    <div class="flex items-center gap-3">
+                        <span id="quiz-progress-badge" class="px-3 py-1 rounded-full bg-rose-500/10 text-rose-500 font-mono text-xs font-semibold">Question 1 / 5</span>
+                        <span id="quiz-score-badge" class="px-3 py-1 rounded-full bg-purple-500/10 text-purple-500 font-mono text-xs font-semibold">默契值: 0 分</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="openAddQuizModal()" class="px-3 py-1.5 rounded-xl bg-slate-200/70 dark:bg-slate-800 hover:bg-rose-500/20 hover:text-rose-500 text-xs font-medium transition-colors flex items-center gap-1.5">
+                            <i class="fa-solid fa-plus"></i> 自定义出题
+                        </button>
+                        <button onclick="restartQuiz()" class="px-3 py-1.5 rounded-xl bg-slate-200/70 dark:bg-slate-800 hover:bg-purple-500/20 hover:text-purple-500 text-xs font-medium transition-colors flex items-center gap-1.5">
+                            <i class="fa-solid fa-rotate-right"></i> 重新挑战
+                        </button>
+                    </div>
+                </div>
+                <div id="quiz-question-box" class="max-w-2xl mx-auto py-4 space-y-6">
+                    <h3 id="quiz-question-text" class="text-lg sm:text-xl font-bold leading-relaxed">加载题目中...</h3>
+                    <div id="quiz-options-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5"></div>
+                    <div id="quiz-feedback" class="hidden p-4 rounded-2xl text-sm font-medium flex items-center justify-between"></div>
+                </div>
+            </div>
+
+            <div id="game-memory-panel" class="hidden glass-card bg-white/80 dark:bg-slate-900/80 border border-purple-200/70 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl">
+                <div class="flex flex-wrap items-center justify-between gap-4 pb-5 mb-6 border-b border-slate-200/70 dark:border-slate-800">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <span class="px-3 py-1 rounded-full bg-purple-500/10 text-purple-500 font-mono text-xs font-semibold">
+                            <i class="fa-solid fa-shoe-prints mr-1"></i> 步数: <span id="mem-moves">0</span>
+                        </span>
+                        <span class="px-3 py-1 rounded-full bg-rose-500/10 text-rose-500 font-mono text-xs font-semibold">
+                            <i class="fa-regular fa-clock mr-1"></i> 用时: <span id="mem-time">00:00</span>
+                        </span>
+                        <span class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 font-mono text-xs font-semibold">
+                            已配对: <span id="mem-matched">0</span> / 8
+                        </span>
+                    </div>
+                    <button onclick="initMemoryGame()" class="px-4 py-1.5 rounded-xl bg-gradient-to-r from-rose-500 to-purple-600 text-white text-xs font-medium shadow hover:opacity-95 transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-shuffle"></i> 洗牌重开
+                    </button>
+                </div>
+                <div id="memory-grid" class="grid grid-cols-4 gap-3 sm:gap-4 max-w-md mx-auto"></div>
+                <p class="text-center text-xs text-slate-400 mt-5 font-mono">
+                    配对图标包含：手冲咖啡 ☕、MacBook 💻、猫咪 🐱、超新星 ✨、真心 ❤️、奇点火箭 🚀、拍立得 📷、生日蛋糕 🎂
+                </p>
+            </div>
+        </section>
+
+        <!-- VAULT -->
+        <section id="vault" class="space-y-6">
+            <div>
+                <div class="text-xs font-mono text-rose-500 uppercase tracking-wider mb-1">03 / ENCRYPTED VAULT (AES-LOVE-256)</div>
+                <h2 class="text-2xl sm:text-3xl font-bold font-serif flex items-center gap-2.5">
+                    <span>只属于我们两个人的秘密空间</span>
+                    <span id="vault-status-badge" class="text-xs font-mono px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                        <i class="fa-solid fa-lock mr-1"></i> 已锁定
+                    </span>
+                </h2>
+            </div>
+
+            <div id="vault-locked-view" class="glass-card bg-white/85 dark:bg-slate-900/85 border border-rose-200/80 dark:border-slate-800 rounded-3xl p-8 sm:p-12 text-center max-w-xl mx-auto shadow-2xl space-y-6">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-rose-500/20 to-purple-500/20 border border-rose-500/30 flex items-center justify-center mx-auto text-rose-500 text-2xl animate-float">
+                    <i class="fa-solid fa-fingerprint"></i>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="text-xl font-bold">需要双人专属密钥验证</h3>
+                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">验证通过后将解锁：时光信箱、恋爱愿望清单与专属私密备忘录</p>
+                    <p class="text-xs font-mono text-rose-500/90 bg-rose-500/10 inline-block px-3 py-1 rounded-lg">
+                        💡 默认测试口令: <span class="font-bold">0520</span> 或 <span class="font-bold">1314</span>
+                    </p>
+                </div>
+                <div class="flex items-center justify-center gap-2 max-w-xs mx-auto">
+                    <input id="vault-pass-input" type="password" maxlength="12" placeholder="输入纪念日或暗号..." onkeydown="if(event.key==='Enter') unlockVault()" class="w-full px-4 py-3 rounded-2xl bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-center font-mono text-lg tracking-widest focus:outline-none focus:border-rose-500">
+                    <button onclick="unlockVault()" class="px-5 py-3 rounded-2xl bg-gradient-to-r from-rose-500 to-purple-600 text-white font-medium text-sm shadow-lg shadow-rose-500/25 hover:scale-105 transition-transform shrink-0">解锁</button>
+                </div>
+                <div class="flex justify-center gap-2 pt-1">
+                    <button onclick="quickFillPass('0520')" class="text-xs font-mono px-3 py-1 rounded-lg bg-slate-200/70 dark:bg-slate-800 hover:bg-rose-500/20 hover:text-rose-500 transition-colors">一键填入 0520</button>
+                    <button onclick="quickFillPass('1314')" class="text-xs font-mono px-3 py-1 rounded-lg bg-slate-200/70 dark:bg-slate-800 hover:bg-rose-500/20 hover:text-rose-500 transition-colors">一键填入 1314</button>
+                </div>
+                <p id="vault-error-msg" class="text-xs text-rose-500 font-mono hidden">口令不匹配，再想想我们的特殊数字？</p>
+            </div>
+
+            <div id="vault-unlocked-view" class="hidden space-y-8">
+                <div class="flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-xs">
+                    <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-mono">
+                        <i class="fa-solid fa-unlock-keyhole"></i>
+                        <span>私密空间已解密 · 所有数据实时保存在本地安全存储中</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="changeVaultPasscode()" class="px-3 py-1.5 rounded-xl bg-white/80 dark:bg-slate-900 hover:text-rose-500 font-mono transition-colors"><i class="fa-solid fa-key mr-1"></i>修改口令</button>
+                        <button onclick="lockVault()" class="px-3 py-1.5 rounded-xl bg-rose-500 text-white font-mono hover:bg-rose-600 transition-colors"><i class="fa-solid fa-lock mr-1"></i>立即锁定</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <div class="lg:col-span-7 glass-card bg-white/80 dark:bg-slate-900/80 border border-rose-200/70 dark:border-slate-800 rounded-3xl p-6 flex flex-col justify-between space-y-5">
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-bold flex items-center gap-2"><i class="fa-solid fa-envelope-open-text text-rose-500"></i><span>时光信箱</span></h3>
+                                <button onclick="openLetterModal()" class="px-3 py-1.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-xs font-medium flex items-center gap-1.5 transition-colors"><i class="fa-solid fa-feather-pointed"></i> 写一封信</button>
+                            </div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">写给未来的她，或者记录当下不好意思当面说出口的心里话。</p>
+                            <div id="letters-list" class="space-y-3 max-h-96 overflow-y-auto pr-1"></div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-5 glass-card bg-white/80 dark:bg-slate-900/80 border border-purple-200/70 dark:border-slate-800 rounded-3xl p-6 flex flex-col justify-between space-y-5">
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-bold flex items-center gap-2"><i class="fa-solid fa-list-check text-purple-500"></i><span>我们的恋爱愿望清单</span></h3>
+                                <span id="bucket-progress-text" class="text-xs font-mono text-purple-500 font-semibold">0%</span>
+                            </div>
+                            <div class="w-full h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+                                <div id="bucket-progress-bar" class="h-full bg-gradient-to-r from-rose-500 to-purple-500 transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                            <div class="flex gap-2">
+                                <input id="new-bucket-input" type="text" placeholder="添加新的恋爱/极客心愿..." onkeydown="if(event.key==='Enter') addBucketItem()" class="w-full px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs focus:outline-none focus:border-purple-500">
+                                <button onclick="addBucketItem()" class="px-3.5 py-2 rounded-xl bg-purple-500 hover:bg-purple-600 text-white text-xs font-medium shrink-0">添加</button>
+                            </div>
+                            <div id="bucket-list-container" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 space-y-4">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <h3 class="text-lg font-bold flex items-center gap-2"><i class="fa-solid fa-user-secret text-amber-500"></i><span>专属暗号与她的喜好备忘录</span></h3>
+                        <span id="memo-save-status" class="text-xs font-mono text-emerald-500">✓ 自动实时保存</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="p-4 rounded-2xl bg-rose-500/5 border border-rose-500/15 space-y-1.5">
+                            <div class="text-xs font-mono text-rose-500 font-semibold">☕ 她的咖啡厅必点</div>
+                            <input id="memo-coffee" oninput="saveSecretMemo()" type="text" class="w-full bg-transparent text-sm font-medium focus:outline-none border-b border-transparent focus:border-rose-400 pb-1" value="冰燕麦拿铁 (少冰 / 半糖)">
+                        </div>
+                        <div class="p-4 rounded-2xl bg-purple-500/5 border border-purple-500/15 space-y-1.5">
+                            <div class="text-xs font-mono text-purple-500 font-semibold">📡 我们的最高暗号</div>
+                            <input id="memo-code" oninput="saveSecretMemo()" type="text" class="w-full bg-transparent text-sm font-medium focus:outline-none border-b border-transparent focus:border-purple-400 pb-1" value="说“去调试模型” = 一起散步">
+                        </div>
+                        <div class="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/15 space-y-1.5">
+                            <div class="text-xs font-mono text-amber-500 font-semibold">🎁 礼物灵感池</div>
+                            <input id="memo-gift" oninput="saveSecretMemo()" type="text" class="w-full bg-transparent text-sm font-medium focus:outline-none border-b border-transparent focus:border-amber-400 pb-1" value="复古拍立得相纸、降噪耳机">
+                        </div>
+                    </div>
+                    <textarea id="memo-notes" oninput="saveSecretMemo()" rows="3" placeholder="记录更多关于她的小细节..." class="w-full p-4 rounded-2xl bg-slate-100/80 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 text-xs sm:text-sm leading-relaxed focus:outline-none focus:border-rose-500"></textarea>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="border-t border-slate-200/60 dark:border-slate-800/80 py-8 mt-16 relative z-10 text-center text-xs text-slate-400 space-y-2">
+        <div class="font-mono">Built with <i class="fa-solid fa-heart text-rose-500 mx-1 animate-pulse"></i> & Geek Romance</div>
+        <div>只属于我们两个人的赛博桃花源 · 数据保存在本地浏览器，注意定期备份</div>
+    </footer>
+
+    <!-- MODALS -->
+    <div id="config-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                <h3 class="font-bold text-lg flex items-center gap-2"><i class="fa-solid fa-sliders text-rose-500"></i> 自定义空间参数</h3>
+                <button onclick="closeConfigModal()" class="text-slate-400 hover:text-rose-500"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="space-y-4 text-sm">
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="block text-xs text-slate-400 mb-1">你的昵称</label><input id="cfg-boy" type="text" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"></div>
+                    <div><label class="block text-xs text-slate-400 mb-1">她的昵称</label><input id="cfg-girl" type="text" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"></div>
+                </div>
+                <div><label class="block text-xs text-slate-400 mb-1">相爱起始时间</label><input id="cfg-together" type="datetime-local" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-xs"></div>
+                <div><label class="block text-xs text-slate-400 mb-1">她的生日</label><input id="cfg-bday" type="date" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-xs"></div>
+                <div><label class="block text-xs text-slate-400 mb-1">爱情宣言</label><textarea id="cfg-motto" rows="2" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs"></textarea></div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeConfigModal()" class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-xs font-medium">取消</button>
+                <button onclick="saveConfig()" class="px-5 py-2 rounded-xl bg-gradient-to-r from-rose-500 to-purple-600 text-white text-xs font-medium shadow">保存生效</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="photo-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                <h3 class="font-bold text-lg flex items-center gap-2"><i class="fa-solid fa-camera-retro text-rose-500"></i> 添加拍立得照片</h3>
+                <button onclick="closePhotoModal()" class="text-slate-400 hover:text-rose-500"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="space-y-4 text-sm">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">选择本地照片 (会自动压缩)</label>
+                    <input id="photo-file-input" type="file" accept="image/*" class="w-full text-xs file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-medium file:bg-rose-500/10 file:text-rose-500 hover:file:bg-rose-500/20">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">或输入图片 URL</label>
+                    <input id="photo-url-input" type="url" placeholder="https://..." class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">分类标签</label>
+                        <select id="photo-tag-input" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs">
+                            <option value="日常">日常</option><option value="旅行">旅行</option><option value="咖啡厅日常">☕ 咖啡厅日常</option>
+                        </select>
+                    </div>
+                    <div><label class="block text-xs text-slate-400 mb-1">拍摄日期</label><input id="photo-date-input" type="date" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-mono"></div>
+                </div>
+                <div><label class="block text-xs text-slate-400 mb-1">照片背后的故事</label><input id="photo-caption-input" type="text" placeholder="例如：在街角咖啡厅..." class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs"></div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closePhotoModal()" class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-xs font-medium">取消</button>
+                <button onclick="addNewPhoto()" class="px-5 py-2 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-xs font-medium shadow">挂上照片墙</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="lightbox-modal" onclick="closeLightbox()" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/85 backdrop-blur-md p-4">
+        <div onclick="event.stopPropagation()" class="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-3xl max-w-2xl w-full shadow-2xl space-y-4 relative">
+            <button onclick="closeLightbox()" class="absolute -top-3 -right-3 w-9 h-9 rounded-full bg-rose-500 text-white shadow-lg flex items-center justify-center hover:scale-110 transition-transform"><i class="fa-solid fa-xmark"></i></button>
+            <div class="overflow-hidden rounded-2xl bg-slate-950 max-h-[65vh] flex items-center justify-center"><img id="lightbox-img" src="" alt="Preview" class="max-h-[65vh] w-auto object-contain"></div>
+            <div class="flex items-center justify-between pt-1">
+                <div>
+                    <span id="lightbox-tag" class="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-rose-500/10 text-rose-500">标签</span>
+                    <h4 id="lightbox-caption" class="font-serif text-base sm:text-lg font-bold mt-1.5"></h4>
+                </div>
+                <span id="lightbox-date" class="text-xs font-mono text-slate-400"></span>
+            </div>
+        </div>
+    </div>
+
+    <div id="quiz-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                <h3 class="font-bold text-lg flex items-center gap-2"><i class="fa-solid fa-circle-question text-purple-500"></i> 添加默契题目</h3>
+                <button onclick="closeAddQuizModal()" class="text-slate-400 hover:text-rose-500"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="space-y-3 text-xs">
+                <div><label class="block text-slate-400 mb-1">问题内容</label><input id="q-title" type="text" placeholder="例如：第一次约会喝了什么？" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"></div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div><label class="block text-emerald-500 mb-1">正确答案 (A)</label><input id="q-opt1" type="text" placeholder="正确答案" class="w-full px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30"></div>
+                    <div><label class="block text-slate-400 mb-1">干扰项 (B)</label><input id="q-opt2" type="text" placeholder="干扰项" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"></div>
+                    <div><label class="block text-slate-400 mb-1">干扰项 (C)</label><input id="q-opt3" type="text" placeholder="干扰项" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"></div>
+                    <div><label class="block text-slate-400 mb-1">干扰项 (D)</label><input id="q-opt4" type="text" placeholder="干扰项" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"></div>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeAddQuizModal()" class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-xs">取消</button>
+                <button onclick="saveNewQuizQuestion()" class="px-5 py-2 rounded-xl bg-purple-500 hover:bg-purple-600 text-white text-xs font-medium">加入题库</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="letter-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                <h3 class="font-bold text-lg flex items-center gap-2"><i class="fa-solid fa-feather-pointed text-rose-500"></i> 投递时光信件</h3>
+                <button onclick="closeLetterModal()" class="text-slate-400 hover:text-rose-500"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="space-y-3 text-xs">
+                <div><label class="block text-slate-400 mb-1">信件标题</label><input id="letter-title-input" type="text" placeholder="给十年后的我们" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"></div>
+                <div><label class="block text-slate-400 mb-1">署名</label><input id="letter-author-input" type="text" value="永远爱你的极客男友" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"></div>
+                <div><label class="block text-slate-400 mb-1">信件正文</label><textarea id="letter-body-input" rows="5" placeholder="写下此刻的心情..." class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 leading-relaxed"></textarea></div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeLetterModal()" class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-xs">取消</button>
+                <button onclick="saveNewLetter()" class="px-5 py-2 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-xs font-medium">加密封存</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-6 right-6 z-50 hidden items-center gap-2.5 px-4 py-3 rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-2xl text-xs font-medium transition-all">
+        <i class="fa-solid fa-circle-check text-rose-500"></i><span id="toast-msg">操作成功</span>
+    </div>
+
+    <script>
+        const STORAGE_KEYS = {
+            CONFIG: 'love_os_config_v1', PHOTOS: 'love_os_photos_v1', QUIZ: 'love_os_quiz_v1',
+            LETTERS: 'love_os_letters_v1', BUCKET: 'love_os_bucket_v1', MEMO: 'love_os_memo_v1', PASSCODE: 'love_os_pass_v1'
+        };
+
+        const defaultConfig = {
+            boyName: 'Alex', girlName: 'Luna', togetherDate: '2024-05-20T13:14', birthday: '2000-10-24',
+            motto: '“用代码构建浪漫，把每一天的日常、每一次咖啡厅的奇点讨论，都编译进只属于我们两个人的永恒内存里。”'
+        };
+
+        const defaultPhotos = [
+            { id: 1, url: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80', tag: '咖啡厅日常', date: '2025-02-14', caption: '带着 MacBook 和 iPad 去咖啡厅，一边喝拿铁一边讨论注意力机制 ☕', rotate: '-rotate-2' },
+            { id: 2, url: 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=800&q=80', tag: '日常', date: '2025-01-20', caption: '傍晚散步时抓拍到的温柔瞬间，连晚风都是甜的 ✨', rotate: 'rotate-1' },
+            { id: 3, url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80', tag: '旅行', date: '2024-11-08', caption: '第一次一起去看海，约定以后每年都要解锁一座新城市 🌊', rotate: '-rotate-1' },
+            { id: 4, url: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=800&q=80', tag: '咖啡厅日常', date: '2025-03-01', caption: '双人极客下午茶：手冲瑰夏 + 一起写小玩具项目 💻', rotate: 'rotate-2' },
+            { id: 5, url: 'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=800&q=80', tag: '日常', date: '2024-12-31', caption: '跨年夜的烟火下，把新年的第一句祝福写进了我们的专属日志 🎆', rotate: '-rotate-2' },
+            { id: 6, url: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=800&q=80', tag: '旅行', date: '2025-02-02', caption: '山谷里的日出与云海，所有的风景都不及你回眸一笑 ⛰️', rotate: 'rotate-1' }
+        ];
+
+        const defaultQuiz = [
+            { q: '当我们带着 MacBook 和 iPad 去咖啡厅约会时，最常一边喝咖啡一边探讨什么？', options: ['AGI 与 Scaling Law', '微积分与量子力学', '股票K线图', '如何修好打印机'], answer: 0 },
+            { q: '在我们的未来十年规划里，准备用什么技术栈来记录她每天的日常生活？', options: ['Cloudflare 云端系统', '手写羊皮纸卷轴', '全部存在软盘里', '发在朋友圈可见三天'], answer: 0 },
+            { q: '为了把我们的聊天、共同经历结构化保存，我们要建立一套什么格式的“第二大脑”？', options: ['本地 Markdown 文件知识库', 'Excel 财务报表', 'PPT 演示文稿', 'Word 97 文档'], answer: 0 },
+            { q: '如果女朋友突然说“今天不想看论文了”，男朋友最满分的响应算法是？', options: ['立刻合上电脑，带她去吃好吃的', '继续讲完反向传播公式', '让她独自去写代码', '重启路由器'], answer: 0 }
+        ];
+
+        const defaultLetters = [
+            { id: 1, title: '致我最特别的女孩：关于我们的五个浪漫规划', author: '你的专属极客', date: '2025-05-20', body: '亲爱的，这是我们爱情规划的第一步——用代码为你搭建的专属网站。未来我还要为你搭好 Cloudflare 的十年日常时光机，建立装满我们回忆的本地知识库，陪你去每一家喜欢的咖啡厅探讨 AGI。不管技术奇点哪一天到来，你永远是我生命里的唯一奇点。' }
+        ];
+
+        const defaultBucket = [
+            { id: 1, text: '用代码给她做一个专属网站', done: true },
+            { id: 2, text: '一起带着 MacBook 去咖啡厅研究 AGI', done: true },
+            { id: 3, text: '一起去海边看一次完整的日出', done: false },
+            { id: 4, text: '建立 AI 可检索的“第二大脑”', done: false }
+        ];
+
+        let appConfig = JSON.parse(localStorage.getItem(STORAGE_KEYS.CONFIG)) || defaultConfig;
+        let photos = JSON.parse(localStorage.getItem(STORAGE_KEYS.PHOTOS)) || defaultPhotos;
+        let quizList = JSON.parse(localStorage.getItem(STORAGE_KEYS.QUIZ)) || defaultQuiz;
+        let letters = JSON.parse(localStorage.getItem(STORAGE_KEYS.LETTERS)) || defaultLetters;
+        let bucketList = JSON.parse(localStorage.getItem(STORAGE_KEYS.BUCKET)) || defaultBucket;
+        let currentFilter = '全部';
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            html.classList.toggle('dark');
+            if (html.classList.contains('dark')) { icon.className = 'fa-solid fa-moon text-sm'; showToast('已切换至星空极客暗色模式 🌌'); }
+            else { icon.className = 'fa-solid fa-sun text-amber-500 text-sm'; showToast('已切换至晨曦玫瑰浅色模式 🌸'); }
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toast-msg').textContent = msg;
+            t.classList.remove('hidden'); t.classList.add('flex');
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(() => { t.classList.add('hidden'); t.classList.remove('flex'); }, 2800);
+        }
+
+        function renderHeroText() {
+            document.getElementById('display-boy').textContent = appConfig.boyName;
+            document.getElementById('display-girl').textContent = appConfig.girlName;
+            document.getElementById('display-motto').textContent = appConfig.motto;
+            document.getElementById('start-date-label').textContent = 'Since ' + appConfig.togetherDate.replace('T', ' ');
+            document.getElementById('bday-date-label').textContent = 'Birthday: ' + appConfig.birthday.slice(5);
+        }
+
+        function updateTimers() {
+            const now = new Date();
+            const start = new Date(appConfig.togetherDate);
+            const diffTogether = Math.max(0, now - start);
+            const tDays = Math.floor(diffTogether / (1000 * 60 * 60 * 24));
+            const tHours = Math.floor((diffTogether / (1000 * 60 * 60)) % 24);
+            const tMins = Math.floor((diffTogether / (1000 * 60)) % 60);
+            const tSecs = Math.floor((diffTogether / 1000) % 60);
+            const totalHours = Math.floor(diffTogether / (1000 * 60 * 60)).toLocaleString();
+
+            document.getElementById('t-days').textContent = String(tDays).padStart(3, '0');
+            document.getElementById('t-hours').textContent = String(tHours).padStart(2, '0');
+            document.getElementById('t-mins').textContent = String(tMins).padStart(2, '0');
+            document.getElementById('t-secs').textContent = String(tSecs).padStart(2, '0');
+            document.getElementById('total-hours-badge').textContent = `累计 ${totalHours} 小时`;
+
+            const parts = appConfig.birthday.split('-');
+            const bMonth = parseInt(parts[1], 10) - 1;
+            const bDay = parseInt(parts[2], 10);
+            let nextBday = new Date(now.getFullYear(), bMonth, bDay, 0, 0, 0);
+            const isTodayBday = (now.getMonth() === bMonth && now.getDate() === bDay);
+            if (now > nextBday && !isTodayBday) { nextBday = new Date(now.getFullYear() + 1, bMonth, bDay, 0, 0, 0); }
+
+            if (isTodayBday) {
+                document.getElementById('b-days').textContent = '000'; document.getElementById('b-hours').textContent = '00';
+                document.getElementById('b-mins').textContent = '00'; document.getElementById('b-secs').textContent = '00';
+                document.getElementById('bday-status-text').innerHTML = `<span class="text-rose-500 font-bold">🎂 今天是 ${appConfig.girlName} 的生日！</span>`;
+            } else {
+                const diffBday = Math.max(0, nextBday - now);
+                document.getElementById('b-days').textContent = String(Math.floor(diffBday / (1000 * 60 * 60 * 24))).padStart(3, '0');
+                document.getElementById('b-hours').textContent = String(Math.floor((diffBday / (1000 * 60 * 60)) % 24)).padStart(2, '0');
+                document.getElementById('b-mins').textContent = String(Math.floor((diffBday / (1000 * 60)) % 60)).padStart(2, '0');
+                document.getElementById('b-secs').textContent = String(Math.floor((diffBday / 1000) % 60)).padStart(2, '0');
+                document.getElementById('bday-status-text').textContent = `距离 ${appConfig.girlName} 的生日惊喜还有 ${Math.floor(diffBday / (1000 * 60 * 60 * 24))} 天`;
+            }
+        }
+
+        function openConfigModal() {
+            document.getElementById('cfg-boy').value = appConfig.boyName;
+            document.getElementById('cfg-girl').value = appConfig.girlName;
+            document.getElementById('cfg-together').value = appConfig.togetherDate;
+            document.getElementById('cfg-bday').value = appConfig.birthday;
+            document.getElementById('cfg-motto').value = appConfig.motto;
+            const m = document.getElementById('config-modal'); m.classList.remove('hidden'); m.classList.add('flex');
+        }
+        function closeConfigModal() { const m = document.getElementById('config-modal'); m.classList.add('hidden'); m.classList.remove('flex'); }
+        function saveConfig() {
+            appConfig = {
+                boyName: document.getElementById('cfg-boy').value.trim() || '我',
+                girlName: document.getElementById('cfg-girl').value.trim() || '她',
+                togetherDate: document.getElementById('cfg-together').value || '2024-05-20T13:14',
+                birthday: document.getElementById('cfg-bday').value || '2000-10-24',
+                motto: document.getElementById('cfg-motto').value.trim() || defaultConfig.motto
+            };
+            localStorage.setItem(STORAGE_KEYS.CONFIG, JSON.stringify(appConfig));
+            renderHeroText(); updateTimers(); closeConfigModal(); showToast('纪念日与个人信息已保存 ❤️');
+        }
+
+        function renderGallery() {
+            const grid = document.getElementById('gallery-grid');
+            const filtered = currentFilter === '全部' ? photos : photos.filter(p => p.tag === currentFilter);
+            document.getElementById('photo-count-badge').textContent = `${filtered.length} 张记忆`;
+            grid.innerHTML = filtered.map(item => `
+                <div onclick="openLightbox(${item.id})" class="polaroid cursor-pointer group bg-white dark:bg-slate-900 p-3.5 pb-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-lg ${item.rotate || ''}">
+                    <div class="relative aspect-[4/3] rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-950 mb-3.5">
+                        <img src="${item.url}" alt="memory" loading="lazy" onerror="this.src='https://placehold.co/600x450/f43f5e/ffffff?text=Memory'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-full text-[11px] font-mono bg-black/60 text-white backdrop-blur-md">${item.tag}</div>
+                        <button onclick="event.stopPropagation(); deletePhoto(${item.id})" class="opacity-0 group-hover:opacity-100 absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-black/60 hover:bg-rose-500 text-white text-xs flex items-center justify-center transition-all"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                    <p class="font-serif text-sm font-medium text-slate-700 dark:text-slate-200 line-clamp-2 leading-snug px-1">${item.caption}</p>
+                    <div class="flex items-center justify-between mt-3 px-1 text-[11px] font-mono text-slate-400">
+                        <span><i class="fa-regular fa-calendar mr-1"></i>${item.date}</span>
+                        <span class="text-rose-500 group-hover:translate-x-1 transition-transform">点击放大 <i class="fa-solid fa-expand ml-0.5"></i></span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterGallery(tag) {
+            currentFilter = tag;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if (btn.dataset.filter === tag) btn.className = 'filter-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-rose-500 text-white transition-all';
+                else btn.className = 'filter-btn px-3 py-1.5 rounded-xl text-xs font-medium hover:bg-rose-500/10 transition-all';
+            });
+            renderGallery();
+        }
+
+        function openPhotoModal() {
+            document.getElementById('photo-date-input').value = new Date().toISOString().slice(0, 10);
+            document.getElementById('photo-file-input').value = ''; document.getElementById('photo-url-input').value = '';
+            document.getElementById('photo-caption-input').value = '';
+            const m = document.getElementById('photo-modal'); m.classList.remove('hidden'); m.classList.add('flex');
+        }
+        function closePhotoModal() { const m = document.getElementById('photo-modal'); m.classList.add('hidden'); m.classList.remove('flex'); }
+
+        // 🌟 优化：加入图片压缩，防止存储爆满
+        function addNewPhoto() {
+            const fileInput = document.getElementById('photo-file-input');
+            const urlInput = document.getElementById('photo-url-input').value.trim();
+            const tag = document.getElementById('photo-tag-input').value;
+            const date = document.getElementById('photo-date-input').value || new Date().toISOString().slice(0, 10);
+            const caption = document.getElementById('photo-caption-input').value.trim() || '记录属于我们的美好瞬间 ✨';
+            const rotations = ['-rotate-2', 'rotate-1', '-rotate-1', 'rotate-2'];
+            const rotate = rotations[photos.length % rotations.length];
+
+            const pushPhoto = (finalUrl) => {
+                photos.unshift({ id: Date.now(), url: finalUrl, tag, date, caption, rotate });
+                try {
+                    localStorage.setItem(STORAGE_KEYS.PHOTOS, JSON.stringify(photos));
+                } catch (e) {
+                    showToast('存储空间不足，建议使用图片 URL');
+                    photos.shift(); // 撤销操作
+                    return;
+                }
+                renderGallery(); closePhotoModal(); showToast('新照片已挂上照片墙 📸');
+            };
+
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 800;
+                        let scale = 1;
+                        if (img.width > MAX_WIDTH) scale = MAX_WIDTH / img.width;
+                        canvas.width = img.width * scale;
+                        canvas.height = img.height * scale;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        pushPhoto(canvas.toDataURL('image/jpeg', 0.7)); // 压缩质量 70%
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else if (urlInput) {
+                pushPhoto(urlInput);
+            } else {
+                pushPhoto('https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=800&q=80');
+            }
+        }
+
+        function deletePhoto(id) { photos = photos.filter(p => p.id !== id); localStorage.setItem(STORAGE_KEYS.PHOTOS, JSON.stringify(photos)); renderGallery(); showToast('已移除该张照片'); }
+        function openLightbox(id) {
+            const item = photos.find(p => p.id === id); if (!item) return;
+            document.getElementById('lightbox-img').src = item.url; document.getElementById('lightbox-tag').textContent = item.tag;
+            document.getElementById('lightbox-caption').textContent = item.caption; document.getElementById('lightbox-date').textContent = item.date;
+            const m = document.getElementById('lightbox-modal'); m.classList.remove('hidden'); m.classList.add('flex');
+        }
+        function closeLightbox() { const m = document.getElementById('lightbox-modal'); m.classList.add('hidden'); m.classList.remove('flex'); }
+
+        // 游戏逻辑
+        function switchGameTab(tab) {
+            const quizPanel = document.getElementById('game-quiz-panel'); const memPanel = document.getElementById('game-memory-panel');
+            const quizBtn = document.getElementById('tab-quiz-btn'); const memBtn = document.getElementById('tab-memory-btn');
+            if (tab === 'quiz') {
+                quizPanel.classList.remove('hidden'); memPanel.classList.add('hidden');
+                quizBtn.className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-medium bg-gradient-to-r from-rose-500 to-purple-600 text-white shadow transition-all flex items-center gap-2';
+                memBtn.className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-rose-500 transition-all flex items-center gap-2';
+            } else {
+                quizPanel.classList.add('hidden'); memPanel.classList.remove('hidden');
+                memBtn.className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-medium bg-gradient-to-r from-rose-500 to-purple-600 text-white shadow transition-all flex items-center gap-2';
+                quizBtn.className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-rose-500 transition-all flex items-center gap-2';
+                if (!window._memInitialized) initMemoryGame();
+            }
+        }
+
+        let currentQuizIdx = 0; let quizScore = 0; let quizAnswered = false;
+        function renderQuizQuestion() {
+            const feedback = document.getElementById('quiz-feedback'); feedback.classList.add('hidden'); quizAnswered = false;
+            if (currentQuizIdx >= quizList.length) {
+                document.getElementById('quiz-question-text').innerHTML = `🎉 默契考验完成！得分为 <span class="text-rose-500 font-mono">${quizScore} / ${quizList.length * 20}</span> 分！`;
+                document.getElementById('quiz-options-list').innerHTML = `<div class="col-span-2 p-6 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-center space-y-3"><p class="text-sm">你们是最合拍的灵魂伴侣！</p><button onclick="restartQuiz()" class="px-5 py-2 rounded-xl bg-rose-500 text-white text-xs font-medium">再来一局</button></div>`;
+                triggerConfettiHearts(); return;
+            }
+            const item = quizList[currentQuizIdx];
+            document.getElementById('quiz-progress-badge').textContent = `Question ${currentQuizIdx + 1} / ${quizList.length}`;
+            document.getElementById('quiz-score-badge').textContent = `默契值: ${quizScore} 分`;
+            document.getElementById('quiz-question-text').textContent = `${currentQuizIdx + 1}. ${item.q}`;
+            const mapped = item.options.map((text, idx) => ({ text, isCorrect: idx === item.answer })); mapped.sort(() => Math.random() - 0.5);
+            document.getElementById('quiz-options-list').innerHTML = mapped.map((opt, i) => `
+                <button onclick="selectQuizOption(this, ${opt.isCorrect})" class="quiz-opt-btn text-left p-4 rounded-2xl bg-slate-100/90 dark:bg-slate-800/80 hover:bg-rose-500/15 border border-slate-200 dark:border-slate-700/80 transition-all text-sm font-medium flex items-center justify-between group">
+                    <span><span class="font-mono text-xs text-slate-400 mr-2">${['A','B','C','D'][i]}.</span>${opt.text}</span>
+                    <i class="fa-regular fa-circle text-slate-400 group-hover:text-rose-500"></i>
+                </button>
+            `).join('');
+        }
+
+        function selectQuizOption(btnEl, isCorrect) {
+            if (quizAnswered) return; quizAnswered = true;
+            const feedback = document.getElementById('quiz-feedback'); feedback.classList.remove('hidden');
+            if (isCorrect) {
+                quizScore += 20;
+                btnEl.className = 'text-left p-4 rounded-2xl bg-emerald-500/20 border-2 border-emerald-500 text-emerald-600 dark:text-emerald-300 text-sm font-bold flex items-center justify-between';
+                btnEl.querySelector('i').className = 'fa-solid fa-circle-check text-emerald-500';
+                feedback.className = 'p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-300 text-xs sm:text-sm font-medium flex items-center justify-between';
+                feedback.innerHTML = `<span>✨ 心有灵犀！(+20分)</span> <button onclick="nextQuizQuestion()" class="px-4 py-1.5 rounded-xl bg-emerald-500 text-white text-xs">下一题 →</button>`;
+            } else {
+                btnEl.className = 'text-left p-4 rounded-2xl bg-rose-500/20 border-2 border-rose-500 text-rose-600 dark:text-rose-300 text-sm font-bold flex items-center justify-between';
+                btnEl.querySelector('i').className = 'fa-solid fa-circle-xmark text-rose-500';
+                feedback.className = 'p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-300 text-xs sm:text-sm font-medium flex items-center justify-between';
+                feedback.innerHTML = `<span>💡 差一点点！罚你请她吃小蛋糕~</span> <button onclick="nextQuizQuestion()" class="px-4 py-1.5 rounded-xl bg-rose-500 text-white text-xs">下一题 →</button>`;
+            }
+            document.getElementById('quiz-score-badge').textContent = `默契值: ${quizScore} 分`;
+        }
+
+        function nextQuizQuestion() { currentQuizIdx++; renderQuizQuestion(); }
+        function restartQuiz() { currentQuizIdx = 0; quizScore = 0; renderQuizQuestion(); }
+        function openAddQuizModal() { const m = document.getElementById('quiz-modal'); m.classList.remove('hidden'); m.classList.add('flex'); }
+        function closeAddQuizModal() { const m = document.getElementById('quiz-modal'); m.classList.add('hidden'); m.classList.remove('flex'); }
+        function saveNewQuizQuestion() {
+            const q = document.getElementById('q-title').value.trim(); const o1 = document.getElementById('q-opt1').value.trim(); const o2 = document.getElementById('q-opt2').value.trim();
+            const o3 = document.getElementById('q-opt3').value.trim(); const o4 = document.getElementById('q-opt4').value.trim();
+            if (!q || !o1 || !o2) { showToast('请至少填写问题和前两个选项'); return; }
+            quizList.push({ q, options: [o1, o2, o3 || '冰美式', o4 || '看星星'], answer: 0 });
+            localStorage.setItem(STORAGE_KEYS.QUIZ, JSON.stringify(quizList));
+            closeAddQuizModal(); restartQuiz(); showToast('题目已加入题库 🧠');
+        }
+
+        const MEMORY_ICONS = [
+            { icon: 'fa-mug-hot', color: 'text-amber-500', label: 'Coffee' }, { icon: 'fa-laptop-code', color: 'text-indigo-500', label: 'Mac' },
+            { icon: 'fa-cat', color: 'text-orange-400', label: 'Cat' }, { icon: 'fa-wand-magic-sparkles', color: 'text-yellow-400', label: 'Star' },
+            { icon: 'fa-heart', color: 'text-rose-500', label: 'Heart' }, { icon: 'fa-rocket', color: 'text-purple-500', label: 'AGI' },
+            { icon: 'fa-camera-retro', color: 'text-emerald-500', label: 'Cam' }, { icon: 'fa-cake-candles', color: 'text-pink-500', label: 'Cake' }
+        ];
+        let memCards = []; let flippedIndices = []; let matchedPairs = 0; let memMoves = 0; let memSeconds = 0; let memTimerInterval = null;
+
+        function initMemoryGame() {
+            window._memInitialized = true;
+            memCards = [...MEMORY_ICONS, ...MEMORY_ICONS].sort(() => Math.random() - 0.5).map((item, idx) => ({ ...item, id: idx, flipped: false, matched: false }));
+            flippedIndices = []; matchedPairs = 0; memMoves = 0; memSeconds = 0;
+            document.getElementById('mem-moves').textContent = '0'; document.getElementById('mem-matched').textContent = '0'; document.getElementById('mem-time').textContent = '00:00';
+            clearInterval(memTimerInterval);
+            memTimerInterval = setInterval(() => {
+                if (matchedPairs < 8) {
+                    memSeconds++;
+                    document.getElementById('mem-time').textContent = `${String(Math.floor(memSeconds / 60)).padStart(2, '0')}:${String(memSeconds % 60).padStart(2, '0')}`;
+                }
+            }, 1000);
+            renderMemoryGrid();
+        }
+
+        function renderMemoryGrid() {
+            document.getElementById('memory-grid').innerHTML = memCards.map((c, idx) => `
+                <button onclick="flipMemoryCard(${idx})" class="aspect-square rounded-2xl transition-all duration-300 flex flex-col items-center justify-center border ${
+                    c.flipped || c.matched ? 'bg-white dark:bg-slate-800 border-rose-400 dark:border-rose-500 shadow-lg scale-100' : 'bg-gradient-to-br from-rose-500/20 to-purple-600/20 hover:from-rose-500/30 hover:to-purple-600/30 border-rose-300/40 dark:border-slate-700 hover:scale-105'
+                }">
+                    ${c.flipped || c.matched ? `<i class="fa-solid ${c.icon} ${c.color} text-2xl sm:text-3xl animate-bounce"></i><span class="text-[10px] font-mono text-slate-400 mt-1">${c.label}</span>` : `<i class="fa-solid fa-code text-rose-400/60 text-lg"></i>`}
+                </button>
+            `).join('');
+        }
+
+        function flipMemoryCard(idx) {
+            const card = memCards[idx];
+            if (card.flipped || card.matched || flippedIndices.length >= 2) return;
+            card.flipped = true; flippedIndices.push(idx); renderMemoryGrid();
+            if (flippedIndices.length === 2) {
+                memMoves++; document.getElementById('mem-moves').textContent = memMoves;
+                const [firstIdx, secondIdx] = flippedIndices;
+                if (memCards[firstIdx].icon === memCards[secondIdx].icon) {
+                    memCards[firstIdx].matched = true; memCards[secondIdx].matched = true; flippedIndices = [];
+                    matchedPairs++; document.getElementById('mem-matched').textContent = matchedPairs; renderMemoryGrid();
+                    if (matchedPairs === 8) { clearInterval(memTimerInterval); triggerConfettiHearts(); showToast(`🎉 太棒了！仅用 ${memMoves} 步完成配对！`); }
+                } else {
+                    setTimeout(() => { memCards[firstIdx].flipped = false; memCards[secondIdx].flipped = false; flippedIndices = []; renderMemoryGrid(); }, 700);
+                }
+            }
+        }
+
+        function quickFillPass(code) { document.getElementById('vault-pass-input').value = code; unlockVault(); }
+        function unlockVault() {
+            const input = document.getElementById('vault-pass-input').value.trim();
+            const savedPass = localStorage.getItem(STORAGE_KEYS.PASSCODE);
+            // 如果没改过密码，兼容 0520 和 1314；如果改过，只认改过的
+            const isValid = savedPass ? (input === savedPass) : (input === '0520' || input === '1314');
+            if (isValid) {
+                document.getElementById('vault-locked-view').classList.add('hidden'); document.getElementById('vault-unlocked-view').classList.remove('hidden');
+                document.getElementById('vault-error-msg').classList.add('hidden');
+                const badge = document.getElementById('vault-status-badge'); badge.className = 'text-xs font-mono px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20';
+                badge.innerHTML = '<i class="fa-solid fa-lock-open mr-1"></i> 已解锁';
+                renderLetters(); renderBucketList(); loadSecretMemo(); triggerConfettiHearts(); showToast('欢迎进入秘密空间 🔓');
+            } else {
+                document.getElementById('vault-error-msg').classList.remove('hidden');
+            }
+        }
+        function lockVault() {
+            document.getElementById('vault-unlocked-view').classList.add('hidden'); document.getElementById('vault-locked-view').classList.remove('hidden');
+            document.getElementById('vault-pass-input').value = '';
+            const badge = document.getElementById('vault-status-badge'); badge.className = 'text-xs font-mono px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20';
+            badge.innerHTML = '<i class="fa-solid fa-lock mr-1"></i> 已锁定'; showToast('秘密空间已重新锁定 🔒');
+        }
+
+        // 🌟 优化：真正能修改密码的弹窗
+        function changeVaultPasscode() {
+            const newPass = prompt("请输入新的 4-12 位专属数字或暗号：", "5201314");
+            if (newPass && newPass.trim().length > 0) {
+                localStorage.setItem(STORAGE_KEYS.PASSCODE, newPass.trim());
+                showToast('✅ 专属口令已更新，请牢记新密码！');
+            } else if (newPass !== null) {
+                showToast('❌ 密码不能为空');
+            }
+        }
+
+        function renderLetters() {
+            document.getElementById('letters-list').innerHTML = letters.map(l => `
+                <div class="p-4 rounded-2xl bg-rose-50/60 dark:bg-slate-950/70 border border-rose-200/60 dark:border-slate-800 space-y-2">
+                    <div class="flex items-center justify-between"><h4 class="font-bold text-sm text-rose-600 dark:text-rose-400">${l.title}</h4><span class="text-[11px] font-mono text-slate-400">${l.date}</span></div>
+                    <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line">${l.body}</p>
+                    <div class="text-right text-[11px] font-mono text-slate-400">— ${l.author}</div>
+                </div>
+            `).join('');
+        }
+        function openLetterModal() { const m = document.getElementById('letter-modal'); m.classList.remove('hidden'); m.classList.add('flex'); }
+        function closeLetterModal() { const m = document.getElementById('letter-modal'); m.classList.add('hidden'); m.classList.remove('flex'); }
+        function saveNewLetter() {
+            const title = document.getElementById('letter-title-input').value.trim() || '给未来的我们';
+            const author = document.getElementById('letter-author-input').value.trim() || appConfig.boyName;
+            const body = document.getElementById('letter-body-input').value.trim();
+            if (!body) { showToast('写点心里话再封存吧 💌'); return; }
+            letters.unshift({ id: Date.now(), title, author, date: new Date().toISOString().slice(0, 10), body });
+            localStorage.setItem(STORAGE_KEYS.LETTERS, JSON.stringify(letters));
+            document.getElementById('letter-title-input').value = ''; document.getElementById('letter-body-input').value = '';
+            renderLetters(); closeLetterModal(); showToast('信件已加密封存 💌');
+        }
+
+        function renderBucketList() {
+            const container = document.getElementById('bucket-list-container');
+            const doneCount = bucketList.filter(b => b.done).length;
+            const percent = bucketList.length ? Math.round((doneCount / bucketList.length) * 100) : 0;
+            document.getElementById('bucket-progress-text').textContent = `${doneCount}/${bucketList.length} (${percent}%)`;
+            document.getElementById('bucket-progress-bar').style.width = `${percent}%`;
+            container.innerHTML = bucketList.map(item => `
+                <div onclick="toggleBucketItem(${item.id})" class="cursor-pointer p-3 rounded-xl border transition-all flex items-center justify-between gap-2 ${
+                    item.done ? 'bg-emerald-500/10 border-emerald-500/30 text-slate-400 line-through' : 'bg-slate-100/70 dark:bg-slate-950/60 border-slate-200/70 dark:border-slate-800 hover:border-purple-400'
+                }">
+                    <div class="flex items-center gap-2.5 text-xs">
+                        <i class="fa-solid ${item.done ? 'fa-circle-check text-emerald-500' : 'fa-circle text-slate-300 dark:text-slate-700'}"></i>
+                        <span>${item.text}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+        function toggleBucketItem(id) { bucketList = bucketList.map(b => b.id === id ? { ...b, done: !b.done } : b); localStorage.setItem(STORAGE_KEYS.BUCKET, JSON.stringify(bucketList)); renderBucketList(); }
+        function addBucketItem() {
+            const input = document.getElementById('new-bucket-input'); const text = input.value.trim(); if (!text) return;
+            bucketList.unshift({ id: Date.now(), text, done: false });
+            localStorage.setItem(STORAGE_KEYS.BUCKET, JSON.stringify(bucketList));
+            input.value = ''; renderBucketList(); showToast('新愿望已加入清单 ✨');
+        }
+
+        function saveSecretMemo() {
+            const memo = { coffee: document.getElementById('memo-coffee').value, code: document.getElementById('memo-code').value, gift: document.getElementById('memo-gift').value, notes: document.getElementById('memo-notes').value };
+            localStorage.setItem(STORAGE_KEYS.MEMO, JSON.stringify(memo));
+            document.getElementById('memo-save-status').textContent = '✓ 已同步 ' + new Date().toLocaleTimeString();
+        }
+        function loadSecretMemo() {
+            const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.MEMO)); if (!saved) return;
+            if (saved.coffee) document.getElementById('memo-coffee').value = saved.coffee;
+            if (saved.code) document.getElementById('memo-code').value = saved.code;
+            if (saved.gift) document.getElementById('memo-gift').value = saved.gift;
+            if (saved.notes) document.getElementById('memo-notes').value = saved.notes;
+        }
+
+        const canvas = document.getElementById('bg-canvas'); const ctx = canvas.getContext('2d'); let particles = [];
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        function createParticles() {
+            particles = []; const count = Math.min(45, Math.floor(window.innerWidth / 30));
+            for (let i = 0; i < count; i++) {
+                particles.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: Math.random() * 3 + 1.5, speedY: -(Math.random() * 0.4 + 0.15), speedX: (Math.random() - 0.5) * 0.3, isHeart: Math.random() > 0.65, alpha: Math.random() * 0.5 + 0.2 });
+            }
+        }
+        function drawHeart(x, y, size, alpha) {
+            ctx.save(); ctx.translate(x, y); ctx.fillStyle = `rgba(244, 63, 94, ${alpha})`; ctx.beginPath(); ctx.moveTo(0, 0);
+            ctx.bezierCurveTo(-size, -size, -size * 2, size / 2, 0, size * 1.8); ctx.bezierCurveTo(size * 2, size / 2, size, -size, 0, 0); ctx.fill(); ctx.restore();
+        }
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let p of particles) {
+                p.y += p.speedY; p.x += p.speedX;
+                if (p.y < -20) { p.y = canvas.height + 20; p.x = Math.random() * canvas.width; }
+                if (p.isHeart) drawHeart(p.x, p.y, p.size * 1.6, p.alpha);
+                else { ctx.fillStyle = `rgba(168, 85, 247, ${p.alpha})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill(); }
+            }
+            requestAnimationFrame(animateParticles);
+        }
+        function triggerConfettiHearts() {
+            for (let i = 0; i < 18; i++) {
+                particles.push({ x: window.innerWidth / 2 + (Math.random() - 0.5) * 300, y: window.innerHeight / 2 + (Math.random() - 0.5) * 150, size: Math.random() * 4 + 3, speedY: -(Math.random() * 2 + 1), speedX: (Math.random() - 0.5) * 2, isHeart: true, alpha: 0.85 });
+            }
+            if (particles.length > 90) particles.splice(0, 18);
+        }
+
+        window.onload = function () {
+            resizeCanvas(); createParticles(); animateParticles(); window.addEventListener('resize', resizeCanvas);
+            renderHeroText(); updateTimers(); setInterval(updateTimers, 1000); renderGallery(); renderQuizQuestion();
+        };
+    </script>
+</body>
+</html>
